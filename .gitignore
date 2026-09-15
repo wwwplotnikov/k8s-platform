@@ -9,3 +9,4 @@ tfplan
 *.tfplan
 tfplan
 *.tfplan
+!gitops/platform/sealed-secrets/pub-cert.pem
