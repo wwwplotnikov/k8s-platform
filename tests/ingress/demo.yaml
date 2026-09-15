@@ -46,11 +46,15 @@ metadata:
   name: echo
   namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - echo.k8sk8s.ru
+      secretName: echo-tls
   rules:
-    - host: echo.example.test
+    - host: echo.k8sk8s.ru
       http:
         paths:
           - path: /
