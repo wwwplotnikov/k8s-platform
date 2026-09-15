@@ -59,7 +59,7 @@ spec:
             - --source=ingress
             - --source=service
             - --provider=yandex
-            - --yandex-folder=ajed3j2667mqq3a1mms3
+            - --yandex-folder=b1gjbbkc2ttunsakdsvo
             - --yandex-iam-key-file=/etc/yc/key.json
             - --domain-filter=k8sk8s.ru
             - --policy=sync
