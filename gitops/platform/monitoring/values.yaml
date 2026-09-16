@@ -2,6 +2,7 @@
 # свои не ставим, чтобы не конфликтовать по порту 9100 и не тратить память
 nodeExporter:
   enabled: false
+  forceDeployDashboards: true
 
 kubeStateMetrics:
   enabled: false
