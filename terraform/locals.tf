@@ -7,20 +7,22 @@ locals {
   zone_id   = local.zone.id
   zone_name = local.zone.name
 
+  disk_type = "SSD"
+
+  # Control plane: 2 vCPU / 4 GB
   flavor_cp_id = [
     for f in data.cloudru_evolution_compute_flavor_collection.flavors.flavors :
-    f.id if f.cpu == 2 && f.ram == 4 && try(f.gpu, 0) == 0
+    f.id if f.name == "gen-2-4"
   ][0]
 
   flavor_worker_id = [
     for f in data.cloudru_evolution_compute_flavor_collection.flavors.flavors :
-    f.id if f.cpu == 4 && f.ram == 8 && try(f.gpu, 0) == 0
+    f.id if f.name == "gen-2-4"
   ][0]
 
-  disk_type = "SSD"
-
+  # Группа Database: 2 vCPU / 4 GB
   flavor_db_id = [
     for f in data.cloudru_evolution_compute_flavor_collection.flavors.flavors :
-    f.id if f.cpu == 2 && f.ram == 4 && try(f.gpu, 0) == 0
+    f.id if f.name == "gen-2-4"
   ][0]
 }

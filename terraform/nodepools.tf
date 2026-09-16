@@ -5,7 +5,7 @@ resource "cloudru_evolution_mk8s_node_pool" "workers" {
 
   machine_configuration = {
     flavor = {
-      flavor_id = local.flavor_db_id
+      flavor_id = local.flavor_worker_id
     }
     disk = {
       type_name = local.disk_type
