@@ -1,4 +1,4 @@
-# Переиспользуем экспортеры, установленные платформой Cloud.ru:
+# Переиспользуем экспортеры, установленные платформой Cloud.ru в namespace monitoring:
 # свои не ставим, чтобы не конфликтовать по порту 9100 и не тратить память
 nodeExporter:
   enabled: false
@@ -12,7 +12,7 @@ kube-state-metrics:
 prometheus-node-exporter:
   enabled: false
 
-# На managed-кластере control plane недоступен для скрейпа
+# В managed-кластере control plane скрыт провайдером — его компоненты недоступны для скрейпа
 kubeApiServer:
   enabled: true
 kubeControllerManager:
@@ -38,7 +38,7 @@ prometheus:
     retention: 2d
     retentionSize: 3GB
 
-    # Скрейпим ServiceMonitor'ы во всех namespace, а не только свои
+    # Скрейпим ServiceMonitor/PodMonitor/PrometheusRule во всех namespace
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
@@ -98,21 +98,41 @@ alertmanager:
 
 grafana:
   enabled: true
-  adminPassword: ""      # зададим через SealedSecret ниже
+
   admin:
     existingSecret: grafana-admin
     userKey: admin-user
     passwordKey: admin-password
 
   persistence:
-    enabled: false        # дашборды заводим декларативно, состояние не храним
+    enabled: false
 
   resources:
     requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
+      cpu: 100m
       memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  # Дефолтный timeoutSeconds=1 слишком жёсткий: Grafana с SQLite
+  # на слабом узле не успевает ответить на /api/health
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 30
+    timeoutSeconds: 10
+    periodSeconds: 15
+    failureThreshold: 5
+
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 90
+    timeoutSeconds: 15
+    periodSeconds: 30
+    failureThreshold: 6
 
   ingress:
     enabled: true
