@@ -36,8 +36,8 @@ defaultRules:
 
 prometheus:
   prometheusSpec:
-    retention: 2d
-    retentionSize: 3GB
+    retention: 1d
+    retentionSize: 2GB
 
     # Скрейпим ServiceMonitor/PodMonitor/PrometheusRule во всех namespace
     serviceMonitorSelectorNilUsesHelmValues: false
@@ -56,9 +56,9 @@ prometheus:
     resources:
       requests:
         cpu: 100m
-        memory: 400Mi
+        memory: 350Mi
       limits:
-        memory: 900Mi
+        memory: 700Mi
 
     # Скрейп платформенных экспортеров Cloud.ru
     additionalScrapeConfigs:
