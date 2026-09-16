@@ -166,6 +166,8 @@ grafana:
           memory: 128Mi
 
 prometheusOperator:
+  admissionWebhooks:
+    enabled: false
   resources:
     requests:
       cpu: 50m
