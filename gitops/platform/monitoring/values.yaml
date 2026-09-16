@@ -110,9 +110,9 @@ grafana:
   resources:
     requests:
       cpu: 100m
-      memory: 256Mi
+      memory: 348Mi
     limits:
-      memory: 512Mi
+      memory: 1Gi
 
   # Дефолтный timeoutSeconds=1 слишком жёсткий: Grafana с SQLite
   # на слабом узле не успевает ответить на /api/health
@@ -149,9 +149,21 @@ grafana:
   sidecar:
     dashboards:
       enabled: true
-      searchNamespace: ALL
+      searchNamespace: monitoring
+      resources:
+        requests:
+          cpu: 10m
+          memory: 48Mi
+        limits:
+          memory: 128Mi
     datasources:
       enabled: true
+      resources:
+        requests:
+          cpu: 10m
+          memory: 48Mi
+        limits:
+          memory: 128Mi
 
 prometheusOperator:
   resources:
