@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cluster-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: cluster-critical
+      rules:
+        - alert: NodeMemoryPressure
+          expr: >
+            (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Высокое потребление памяти на узле {{ $labels.node }}"
+            description: "Занято более 90% памяти в течение 10 минут."
+
+        - alert: NodeDiskSpaceLow
+          expr: >
+            (1 - node_filesystem_avail_bytes{mountpoint="/", fstype!="tmpfs"}
+            / node_filesystem_size_bytes{mountpoint="/", fstype!="tmpfs"}) > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Заканчивается место на узле {{ $labels.node }}"
+            description: "Занято более 85% корневого раздела."
+
+        - alert: IngressControllerDown
+          expr: absent(up{job="ingress-nginx-controller-metrics"} == 1)
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Ingress Controller недоступен"
+            description: "Внешний трафик в кластер не обслуживается."
+
+        - alert: CertificateExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 7 * 24 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Сертификат {{ $labels.name }} истекает менее чем через 7 дней"
+            description: "Проверьте работу cert-manager и ACME-валидации."

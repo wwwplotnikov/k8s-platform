@@ -1,0 +1,80 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: postgresql-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: postgresql
+      rules:
+        - alert: PostgresDown
+          expr: pg_up == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "PostgreSQL недоступен"
+            description: "Экспортер не может подключиться к PostgreSQL более 2 минут."
+
+        - alert: PostgresExporterDown
+          expr: up{job="postgres-exporter"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "postgres-exporter не отвечает"
+            description: "Метрики PostgreSQL не собираются более 5 минут."
+
+        - alert: PostgresTooManyConnections
+          expr: >
+            sum by (instance) (pg_stat_activity_count)
+            /
+            max by (instance) (pg_settings_max_connections) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL использует более 80% соединений"
+            description: "Занято {{ $value | humanizePercentage }} лимита соединений."
+
+        - alert: PostgresDeadlocks
+          expr: increase(pg_stat_database_deadlocks[10m]) > 5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Взаимоблокировки в PostgreSQL"
+            description: "За 10 минут зафиксировано {{ $value }} deadlock в базе {{ $labels.datname }}."
+
+        - alert: PostgresPersistentVolumeFillingUp
+          expr: >
+            kubelet_volume_stats_available_bytes{persistentvolumeclaim="data-postgres-0"}
+            /
+            kubelet_volume_stats_capacity_bytes{persistentvolumeclaim="data-postgres-0"} < 0.15
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Заканчивается место на томе PostgreSQL"
+            description: "Свободно менее 15% ({{ $value | humanizePercentage }})."
+
+        - alert: PostgresPodNotReady
+          expr: >
+            kube_pod_status_ready{namespace="database", condition="true", pod="postgres-0"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Под PostgreSQL не готов"
+            description: "postgres-0 в состоянии not ready более 5 минут."
+
+        - alert: PostgresRestarting
+          expr: increase(kube_pod_container_status_restarts_total{namespace="database", pod="postgres-0"}[15m]) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PostgreSQL часто перезапускается"
+            description: "За 15 минут произошло {{ $value }} рестартов."
