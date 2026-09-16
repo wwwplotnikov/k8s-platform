@@ -64,11 +64,3 @@ spec:
                 name: echo
                 port:
                   number: 80
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: echo-extra
-  namespace: demo
-data:
-  note: "temporary resource to demonstrate prune"
