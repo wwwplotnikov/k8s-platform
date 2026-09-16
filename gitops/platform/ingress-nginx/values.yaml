@@ -24,6 +24,10 @@ controller:
 
   metrics:
     enabled: true
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        release: monitoring
 
   topologySpreadConstraints:
     - maxSkew: 1

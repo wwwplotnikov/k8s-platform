@@ -24,3 +24,9 @@ cainjector:
       memory: 128Mi
     limits:
       memory: 256Mi
+prometheus:
+  enabled: true
+  servicemonitor:
+    enabled: true
+    labels:
+      release: monitoring
